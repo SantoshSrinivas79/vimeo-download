@@ -3,6 +3,8 @@
 # it into a single file
 from __future__ import print_function
 import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 import base64
 from tqdm import tqdm
 import sys
@@ -11,7 +13,7 @@ import os
 import distutils
 import argparse
 import datetime
-
+import json
 
 # Prefix for this run
 TIMESTAMP = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -87,6 +89,7 @@ def download_audio(base_url, content):
 
     # Download
     filename = os.path.join(INSTANCE_TEMP, "a.mp3")
+
     audio_filename = filename
     print('saving to %s' % filename)
 
@@ -97,7 +100,7 @@ def download_audio(base_url, content):
 
     for segment in tqdm(audio['segments']):
         segment_url = audio_base_url + segment['url']
-        resp = requests.get(segment_url, stream=True)
+        resp = requests.get(segment_url, stream=True, verify=False)
         if resp.status_code != 200:
             print('not 200!')
             print(resp)
@@ -151,11 +154,26 @@ if __name__ == "__main__":
         base_url = master_json_url[:master_json_url.rfind('/', 0, -26) - 5]
 
         # get the content
-        resp = requests.get(master_json_url)
+        resp = requests.get(master_json_url, verify=False)
         content = resp.json()
 
+        # Create INSTANCE_TEMP if it doesn't exist
+        if not os.path.exists(INSTANCE_TEMP):
+            print("Creating {}...".format(INSTANCE_TEMP))
+            os.makedirs(INSTANCE_TEMP)
+
+        contentFileName = os.path.join(INSTANCE_TEMP, "content.txt")
+        content_file = open(contentFileName, 'wb')
+        content_file.write(master_json_url)
+        content_file.write("\n")
+        content_file.write("\n")
+        content_file.write(json.dumps(content))
+        content_file.flush()
+        content_file.close()
+
+
         # Download the components of the stream
-        download_video(base_url, content)
+        # download_video(base_url, content)
         download_audio(base_url, content)
 
     # Overwrite timestamp if skipping download
