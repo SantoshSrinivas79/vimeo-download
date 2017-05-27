@@ -61,7 +61,7 @@ def download_video(base_url, content):
 
     for segment in tqdm(video['segments']):
         segment_url = video_base_url + segment['url']
-        resp = requests.get(segment_url, stream=True)
+        resp = requests.get(segment_url, stream=True, verify=False)
         if resp.status_code != 200:
             print('not 200!')
             print(resp)
@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
 
         # Download the components of the stream
-        # download_video(base_url, content)
+        download_video(base_url, content)
         download_audio(base_url, content)
 
     # Overwrite timestamp if skipping download
