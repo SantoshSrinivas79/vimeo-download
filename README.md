@@ -33,7 +33,14 @@ To use this script, the master url needs to be manually extracted from the page:
 
    `python vimeo-download.py --url "http://...master.json?base64_init=1" --output <optional_name>`
 
+`source activate env`
+
 `python vimeo-download.py --url "https://54skyfiregce-vimeo.akamaized.net/exp=1495778158~acl=%2F166161053%2F%2A~hmac=5a10fbddc107291f4dddcca7d8e3d223268fa63f152db2125b183a2bd6c6a0e2/166161053/sep/video/529552759,529552769,529552767,529552757/master.json?base64_init=1"`
+
+Merge audio and video
+
+`ffmpeg -i a.mp4 -i a.mp3 -c:v copy -c:a copy output.mp4`
+
 
 To get the master url:
 
